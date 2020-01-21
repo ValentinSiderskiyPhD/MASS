@@ -56,8 +56,16 @@ Lib
 * `/usr/local/lib/libboost_python3.so`
 * `/usr/local/lib/libboost_numpy3.so`
 
+### Clone MASS ###
 
-### Install DART 6.3
+0. clone this Repository
+
+```bach
+git clone https://github.com/ValentinSiderskiyPhD/MASS.git
+cd MASS
+```
+
+### Install DART 6.3 (inside the MASS repository folder)
 
 Please refer to http://dartsim.github.io/ (Install version 6.3)
 
