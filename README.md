@@ -93,10 +93,17 @@ source /path/to/venv/bin/activate
 ```
 - pytorch(https://pytorch.org/)
 
+- if you have python 3.5
 ```bash
 pip3 install http://download.pytorch.org/whl/cpu/torch-0.4.1-cp35-cp35m-linux_x86_64.whl 
 pip3 install torchvision
 ```
+OR if you have python 3.6
+```bash
+pip3 install http://download.pytorch.org/whl/cpu/torch-0.4.1-cp36-cp36m-linux_x86_64.whl
+pip3 install torchvision
+```
+
 
 - numpy, matplotlib
 
