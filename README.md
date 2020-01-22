@@ -62,7 +62,6 @@ Lib
 
 ```bach
 git clone https://github.com/ValentinSiderskiyPhD/MASS.git
-cd MASS
 ```
 
 ### Install DART 6.3
