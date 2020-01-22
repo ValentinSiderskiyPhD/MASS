@@ -65,7 +65,7 @@ git clone https://github.com/ValentinSiderskiyPhD/MASS.git
 cd MASS
 ```
 
-### Install DART 6.3 (inside the MASS repository folder)
+### Install DART 6.3
 
 Please refer to http://dartsim.github.io/ (Install version 6.3)
 
@@ -82,6 +82,7 @@ sudo apt-get install libopenscenegraph-dev
 2. install DART v6.3.0
 
 ```bash
+cd ~
 git clone git://github.com/dartsim/dart.git
 cd dart
 git checkout tags/v6.3.0
