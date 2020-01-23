@@ -1,3 +1,6 @@
+- TODO:  Add progress bar in training.
+- TODO:  Add x and y labels in the reward graph during training.
+
 # MASS(Muscle-Actuated Skeletal System)
 
 ![Teaser](png/Teaser.png)
