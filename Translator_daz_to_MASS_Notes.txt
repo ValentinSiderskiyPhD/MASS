@@ -1,0 +1,40 @@
+Translator
+
+hip, Character1_Hips
+abdomen, Character1_Spine
+chest, Character1_Spine1
+lCollar, Character1_LeftShoulder
+lShldr, Character1_LeftArm
+lForeArm, Character1_LeftForeArm
+lHand, Character1_LeftHand
+
+From LeftHand Remove desendants.
+
+rCollar, Character1_RightShoulder
+rShldr, Character1_RightArm
+rForeArm, Character1_RightForeArm
+rHand, Character1_RightHand
+
+From RightHand Remove desendants.
+
+neck, Character1_Neck
+
+head, Character1_Head
+
+From Head, Remove Desendants
+
+rThigh, merge with parent
+
+rButtock, Character1_RightUpLeg
+
+rShin, Character1_RightLeg
+
+rFoot, Character1_RightFoot
+
+lThigh, merge with parent
+
+lButtock, Character1_LeftUpLeg
+
+lShin, Character1_LeftLeg
+
+lFoot, Character1_LeftFoot
