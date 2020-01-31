@@ -143,7 +143,7 @@ make -j8
 - Run Training
 ```bash
 cd python
-source /path/to/virtualenv/
+source /path/to/virtualenv/bin/activate
 python3 main.py -d ../data/metadata.txt
 ```
 
@@ -151,19 +151,19 @@ All the training networks are saved in /nn folder.
 
 - Run UI
 ```bash
-source /path/to/virtualenv/
+source /path/to/virtualenv/bin/activate
 ./render/render ../data/metadata.txt
 ```
 
 - Run Trained data
 ```bash
-source /path/to/virtualenv/
+source /path/to/virtualenv/bin/activate
 ./render/render ../data/metadata.txt ../nn/xxx.pt ../nn/xxx_muscle.pt
 ```
 
 If you are simulating with the torque-actuated model, 
 ```bash
-source /path/to/virtualenv/
+source /path/to/virtualenv/bin/activate
 ./render/render ../data/metadata.txt ../nn/xxx.pt
 ```
 
