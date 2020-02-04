@@ -2,3 +2,7 @@ build/
 *.so
 *.a
 nn/
+nn_jump/
+nn_walk/
+python/__pycache__/
+*.py[cod]
