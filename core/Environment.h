@@ -35,6 +35,7 @@ public:
 	Eigen::VectorXd GetState();
 	void SetAction(const Eigen::VectorXd& a);
 	double GetReward();
+	double GetJumpReward();
 
 	Eigen::VectorXd GetDesiredTorques();
 	Eigen::VectorXd GetMuscleTorques();
@@ -49,7 +50,7 @@ public:
 	int GetNumState(){return mNumState;}
 	int GetNumAction(){return mNumActiveDof;}
 	int GetNumSteps(){return mSimulationHz/mControlHz;}
-	
+
 	const Eigen::VectorXd& GetActivationLevels(){return mActivationLevels;}
 	const Eigen::VectorXd& GetAverageActivationLevels(){return mAverageActivationLevels;}
 	void SetActivationLevels(const Eigen::VectorXd& a){mActivationLevels = a;}

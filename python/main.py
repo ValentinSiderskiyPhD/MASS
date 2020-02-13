@@ -121,7 +121,7 @@ class PPO(object):
 	def SaveModel(self):
 		self.model.save('../nn/current.pt')
 		self.muscle_model.save('../nn/current_muscle.pt')
-		
+
 		if self.max_return_epoch == self.num_evaluation:
 			self.model.save('../nn/max.pt')
 			self.muscle_model.save('../nn/max_muscle.pt')
@@ -156,7 +156,7 @@ class PPO(object):
 				advantages[i] = ad_t
 			self.sum_return += epi_return
 			TD = values[:size] + advantages
-			
+
 			for i in range(size):
 				self.replay_buffer.Push(states[i], actions[i], logprobs[i], TD[i], advantages[i])
 		self.num_episode = len(self.total_episodes)
@@ -204,10 +204,10 @@ class PPO(object):
 
 				if np.any(np.isnan(states[j])) or np.any(np.isnan(actions[j])) or np.any(np.isnan(states[j])) or np.any(np.isnan(values[j])) or np.any(np.isnan(logprobs[j])):
 					nan_occur = True
-				
+
 				elif self.env.IsEndOfEpisode(j) is False:
 					terminated_state = False
-					rewards[j] = self.env.GetReward(j)
+					rewards[j] = self.env.GetJumpReward; #GetReward(j)
 					self.episodes[j].Push(states[j], actions[j], rewards[j], values[j], logprobs[j])
 					local_step += 1
 
@@ -221,9 +221,9 @@ class PPO(object):
 
 			if local_step >= self.buffer_size:
 				break
-				
+
 			states = self.env.GetStates()
-		
+
 	def OptimizeSimulationNN(self):
 		all_transitions = np.array(self.replay_buffer.buffer)
 		for j in range(self.num_epochs):
@@ -237,11 +237,11 @@ class PPO(object):
 				stack_lp = np.vstack(batch.logprob).astype(np.float32)
 				stack_td = np.vstack(batch.TD).astype(np.float32)
 				stack_gae = np.vstack(batch.GAE).astype(np.float32)
-				
+
 				a_dist,v = self.model(Tensor(stack_s))
 				'''Critic Loss'''
 				loss_critic = ((v-Tensor(stack_td)).pow(2)).mean()
-				
+
 				'''Actor Loss'''
 				ratio = torch.exp(a_dist.log_prob(Tensor(stack_a))-Tensor(stack_lp))
 				stack_gae = (stack_gae-stack_gae.mean())/(stack_gae.std()+ 1E-5)
@@ -254,7 +254,7 @@ class PPO(object):
 
 				self.loss_actor = loss_actor.cpu().detach().numpy().tolist()
 				self.loss_critic = loss_critic.cpu().detach().numpy().tolist()
-				
+
 				loss = loss_actor + loss_entropy + loss_critic
 
 				self.optimizer.zero_grad()
@@ -309,7 +309,7 @@ class PPO(object):
 		self.OptimizeSimulationNN()
 		if self.use_muscle:
 			self.OptimizeMuscleNN()
-		
+
 	def Train(self):
 		self.GenerateTransitions()
 		self.OptimizeModel()
@@ -334,7 +334,7 @@ class PPO(object):
 		print('||Loss Actor               : {:.4f}'.format(self.loss_actor))
 		print('||Loss Critic              : {:.4f}'.format(self.loss_critic))
 		print('||Loss Muscle              : {:.4f}'.format(self.loss_muscle))
-		print('||Noise                    : {:.3f}'.format(self.model.log_std.exp().mean()))		
+		print('||Noise                    : {:.3f}'.format(self.model.log_std.exp().mean()))
 		print('||Num Transition So far    : {}'.format(self.num_tuple_so_far))
 		print('||Num Transition           : {}'.format(self.num_tuple))
 		print('||Num Episode              : {}'.format(self.num_episode))
@@ -343,9 +343,9 @@ class PPO(object):
 		print('||Avg Step per episode     : {:.1f}'.format(self.num_tuple/self.num_episode))
 		print('||Max Avg Retun So far     : {:.3f} at #{}'.format(self.max_return,self.max_return_epoch))
 		self.rewards.append(self.sum_return/self.num_episode)
-		
+
 		self.SaveModel()
-		
+
 		print('=============================================')
 		return np.array(self.rewards)
 
@@ -368,7 +368,7 @@ def Plot(y,title,num_fig=1,ylim=True):
 	plt.clf()
 	plt.title(title)
 	plt.plot(y,'b')
-	
+
 	plt.plot(temp_y,'r')
 
 	plt.show()

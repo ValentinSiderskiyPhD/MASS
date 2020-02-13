@@ -24,7 +24,7 @@ EnvManager(std::string meta_file,int num_envs)
 		// 	character->LoadMuscles(std::string(MASS_ROOT_DIR)+std::string("/data/muscle.xml"));
 
 		// character->LoadBVH(std::string(MASS_ROOT_DIR)+std::string("/data/motion/walk.bvh"),true);
-		
+
 		// double kp = 300.0;
 		// character->SetPDParameters(kp,sqrt(2*kp));
 		// env->SetCharacter(character);
@@ -87,24 +87,33 @@ IsEndOfEpisode(int id)
 {
 	return mEnvs[id]->IsEndOfEpisode();
 }
-np::ndarray 
+np::ndarray
 EnvManager::
 GetState(int id)
 {
 	return toNumPyArray(mEnvs[id]->GetState());
 }
-void 
+void
 EnvManager::
 SetAction(np::ndarray np_array, int id)
 {
 	mEnvs[id]->SetAction(toEigenVector(np_array));
 }
-double 
+double
 EnvManager::
 GetReward(int id)
 {
 	return mEnvs[id]->GetReward();
 }
+
+double
+EnvManager::
+GetJumpReward(int id)
+{
+	return mEnvs[id]->GetJumpReward();
+}
+
+
 
 void
 EnvManager::
@@ -201,7 +210,7 @@ EnvManager::
 GetDesiredTorques()
 {
 	std::vector<Eigen::VectorXd> tau_des(mNumEnvs);
-	
+
 #pragma omp parallel for
 	for (int id = 0; id < mNumEnvs; ++id)
 	{
@@ -261,6 +270,7 @@ BOOST_PYTHON_MODULE(pymss)
 		.def("GetState",&EnvManager::GetState)
 		.def("SetAction",&EnvManager::SetAction)
 		.def("GetReward",&EnvManager::GetReward)
+		.def("GetJumpReward",&EvnManager::GetReward)
 		.def("Steps",&EnvManager::Steps)
 		.def("StepsAtOnce",&EnvManager::StepsAtOnce)
 		.def("Resets",&EnvManager::Resets)

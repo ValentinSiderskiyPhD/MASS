@@ -40,7 +40,7 @@ Initialize(const std::string& meta_file,bool load_obj)
 		ss.str(str);
 		ss>>index;
 		if(!index.compare("use_muscle"))
-		{	
+		{
 			std::string str2;
 			ss>>str2;
 			if(!str2.compare("true"))
@@ -94,8 +94,8 @@ Initialize(const std::string& meta_file,bool load_obj)
 
 	}
 	ifs.close();
-	
-	
+
+
 	double kp = 300.0;
 	character->SetPDParameters(kp,sqrt(2*kp));
 	this->SetCharacter(character);
@@ -114,7 +114,7 @@ Initialize()
 	if(mCharacter->GetSkeleton()->getRootBodyNode()->getParentJoint()->getType()=="FreeJoint")
 		mRootJointDof = 6;
 	else if(mCharacter->GetSkeleton()->getRootBodyNode()->getParentJoint()->getType()=="PlanarJoint")
-		mRootJointDof = 3;	
+		mRootJointDof = 3;
 	else
 		mRootJointDof = 0;
 	mNumActiveDof = mCharacter->GetSkeleton()->getNumDofs()-mRootJointDof;
@@ -137,7 +137,7 @@ Initialize()
 	mWorld->addSkeleton(mCharacter->GetSkeleton());
 	mWorld->addSkeleton(mGround);
 	mAction = Eigen::VectorXd::Zero(mNumActiveDof);
-	
+
 	Reset(false);
 	mNumState = GetState().rows();
 }
@@ -150,7 +150,7 @@ Reset(bool RSI)
 	mCharacter->GetSkeleton()->clearConstraintImpulses();
 	mCharacter->GetSkeleton()->clearInternalForces();
 	mCharacter->GetSkeleton()->clearExternalForces();
-	
+
 	double t = 0.0;
 
 	if(RSI)
@@ -171,7 +171,7 @@ Reset(bool RSI)
 void
 Environment::
 Step()
-{	
+{
 	if(mUseMuscle)
 	{
 		int count = 0;
@@ -249,7 +249,7 @@ GetMuscleTorques()
 		mCurrentMuscleTuple.JtA.segment(index,JtA_i.rows()) = JtA_i;
 		index += JtA_i.rows();
 	}
-	
+
 	return mCurrentMuscleTuple.JtA;
 }
 double exp_of_squared(const Eigen::VectorXd& vec,double w)
@@ -271,7 +271,7 @@ Environment::
 IsEndOfEpisode()
 {
 	bool isTerminal = false;
-	
+
 	Eigen::VectorXd p = mCharacter->GetSkeleton()->getPositions();
 	Eigen::VectorXd v = mCharacter->GetSkeleton()->getVelocities();
 
@@ -282,10 +282,10 @@ IsEndOfEpisode()
 		isTerminal =true;
 	else if(mWorld->getTime()>10.0)
 		isTerminal =true;
-	
+
 	return isTerminal;
 }
-Eigen::VectorXd 
+Eigen::VectorXd
 Environment::
 GetState()
 {
@@ -302,7 +302,7 @@ GetState()
 		p.segment<3>(3*(i-1)) = skel->getBodyNode(i)->getCOM(root);
 		v.segment<3>(3*(i-1)) = skel->getBodyNode(i)->getCOMLinearVelocity();
 	}
-	
+
 	v.tail<3>() = root->getCOMLinearVelocity();
 
 	double t_phase = mCharacter->GetBVH()->GetMaxTime();
@@ -316,7 +316,7 @@ GetState()
 	state<<p,v,phi;
 	return state;
 }
-void 
+void
 Environment::
 SetAction(const Eigen::VectorXd& a)
 {
@@ -332,7 +332,7 @@ SetAction(const Eigen::VectorXd& a)
 	mRandomSampleIndex = rand()%(mSimulationHz/mControlHz);
 	mAverageActivationLevels.setZero();
 }
-double 
+double
 Environment::
 GetReward()
 {
@@ -385,6 +385,81 @@ GetReward()
 	double r_com = exp_of_squared(com_diff,10.0);
 
 	double r = r_ee*(w_q*r_q + w_v*r_v);
+
+	return r;
+}
+
+
+double Environment::GetJumpReward()
+{
+	auto& skel = mCharacter->GetSkeleton();
+
+	Eigen::VectorXd cur_pos = skel->getPositions();
+	Eigen::VectorXd cur_vel = skel->getVelocities();
+
+	Eigen::VectorXd p_diff_all = skel->getPositionDifferences(mTargetPositions,cur_pos);
+	Eigen::VectorXd v_diff_all = skel->getPositionDifferences(mTargetVelocities,cur_vel);
+
+	Eigen::VectorXd p_diff = Eigen::VectorXd::Zero(skel->getNumDofs());
+	Eigen::VectorXd v_diff = Eigen::VectorXd::Zero(skel->getNumDofs());
+
+  //jump r_g
+	Eigen::VectorXd lf_diff;
+	Eigen::VectorXd rf_diff;
+
+	const auto& bvh_map = mCharacter->GetBVH()->GetBVHMap();
+
+	for(auto ss : bvh_map)
+	{
+		auto joint = mCharacter->GetSkeleton()->getBodyNode(ss.first)->getParentJoint();
+		int idx = joint->getIndexInSkeleton(0);
+		if(joint->getType()=="FreeJoint")
+			continue;
+		else if(joint->getType()=="RevoluteJoint")
+			p_diff[idx] = p_diff_all[idx];
+		else if(joint->getType()=="BallJoint")
+		{
+			p_diff.segment<3>(idx) = p_diff_all.segment<3>(idx);
+
+			//if leftfoot
+			y_lf_diff.segment<3> = p_diff_all.segment<3>(idx);
+			//else if rightfoot
+			y_rf_diff.segment<3> = p_diff_all.segment<3>(idx);
+			//else if torso
+			y_com_diff
+		}
+
+	}
+
+	auto ees = mCharacter->GetEndEffectors();
+	Eigen::VectorXd ee_diff(ees.size()*3);
+	Eigen::VectorXd com_diff;
+
+	for(int i =0;i<ees.size();i++)
+		ee_diff.segment<3>(i*3) = ees[i]->getCOM();
+	com_diff = skel->getCOM();
+
+	skel->setPositions(mTargetPositions);
+	skel->computeForwardKinematics(true,false,false);
+
+	com_diff -= skel->getCOM();
+	for(int i=0;i<ees.size();i++)
+		ee_diff.segment<3>(i*3) -= ees[i]->getCOM()+com_diff;
+
+	skel->setPositions(cur_pos);
+	skel->computeForwardKinematics(true,false,false);
+
+	double r_q = exp_of_squared(p_diff,2.0);
+	double r_v = exp_of_squared(v_diff,0.1);
+	double r_ee = exp_of_squared(ee_diff,40.0);
+
+	double r_ylf = exp_of_squared(y_lf_diff,40.0);
+	double r_yrf = exp_of_squared(y_rf_diff,40.0);
+	double r_ycom = exp_of_squared(y_com_diff,40.0);
+
+	double r_g = r_ycom + r_ylf + r_yrf; //jump
+
+	double r = r_ee*(w_q*r_q + w_v*r_v) + r_g;
 
 	return r;
 }
