@@ -384,82 +384,9 @@ GetReward()
 	double r_ee = exp_of_squared(ee_diff,40.0);
 	double r_com = exp_of_squared(com_diff,10.0);
 
-	double r = r_ee*(w_q*r_q + w_v*r_v);
+	if(jump)
 
-	return r;
-}
-
-
-double Environment::GetJumpReward()
-{
-	auto& skel = mCharacter->GetSkeleton();
-
-	Eigen::VectorXd cur_pos = skel->getPositions();
-	Eigen::VectorXd cur_vel = skel->getVelocities();
-
-	Eigen::VectorXd p_diff_all = skel->getPositionDifferences(mTargetPositions,cur_pos);
-	Eigen::VectorXd v_diff_all = skel->getPositionDifferences(mTargetVelocities,cur_vel);
-
-	Eigen::VectorXd p_diff = Eigen::VectorXd::Zero(skel->getNumDofs());
-	Eigen::VectorXd v_diff = Eigen::VectorXd::Zero(skel->getNumDofs());
-
-  //jump r_g
-	Eigen::VectorXd lf_diff;
-	Eigen::VectorXd rf_diff;
-
-	const auto& bvh_map = mCharacter->GetBVH()->GetBVHMap();
-
-	for(auto ss : bvh_map)
-	{
-		auto joint = mCharacter->GetSkeleton()->getBodyNode(ss.first)->getParentJoint();
-		int idx = joint->getIndexInSkeleton(0);
-		if(joint->getType()=="FreeJoint")
-			continue;
-		else if(joint->getType()=="RevoluteJoint")
-			p_diff[idx] = p_diff_all[idx];
-		else if(joint->getType()=="BallJoint")
-		{
-			p_diff.segment<3>(idx) = p_diff_all.segment<3>(idx);
-
-			//if leftfoot
-			y_lf_diff.segment<3> = p_diff_all.segment<3>(idx);
-			//else if rightfoot
-			y_rf_diff.segment<3> = p_diff_all.segment<3>(idx);
-			//else if torso
-			y_com_diff
-		}
-
-	}
-
-	auto ees = mCharacter->GetEndEffectors();
-	Eigen::VectorXd ee_diff(ees.size()*3);
-	Eigen::VectorXd com_diff;
-
-	for(int i =0;i<ees.size();i++)
-		ee_diff.segment<3>(i*3) = ees[i]->getCOM();
-	com_diff = skel->getCOM();
-
-	skel->setPositions(mTargetPositions);
-	skel->computeForwardKinematics(true,false,false);
-
-	com_diff -= skel->getCOM();
-	for(int i=0;i<ees.size();i++)
-		ee_diff.segment<3>(i*3) -= ees[i]->getCOM()+com_diff;
-
-	skel->setPositions(cur_pos);
-	skel->computeForwardKinematics(true,false,false);
-
-	double r_q = exp_of_squared(p_diff,2.0);
-	double r_v = exp_of_squared(v_diff,0.1);
-	double r_ee = exp_of_squared(ee_diff,40.0);
-
-	double r_ylf = exp_of_squared(y_lf_diff,40.0);
-	double r_yrf = exp_of_squared(y_rf_diff,40.0);
-	double r_ycom = exp_of_squared(y_com_diff,40.0);
-
-	double r_g = r_ycom + r_ylf + r_yrf; //jump
-
-	double r = r_ee*(w_q*r_q + w_v*r_v) + r_g;
+	double r = r_ee*(w_q*r_q + w_v*r_v) + r_g);
 
 	return r;
 }

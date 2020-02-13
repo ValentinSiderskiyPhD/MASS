@@ -106,14 +106,6 @@ GetReward(int id)
 	return mEnvs[id]->GetReward();
 }
 
-double
-EnvManager::
-GetJumpReward(int id)
-{
-	return mEnvs[id]->GetJumpReward();
-}
-
-
 
 void
 EnvManager::
@@ -270,7 +262,6 @@ BOOST_PYTHON_MODULE(pymss)
 		.def("GetState",&EnvManager::GetState)
 		.def("SetAction",&EnvManager::SetAction)
 		.def("GetReward",&EnvManager::GetReward)
-		.def("GetJumpReward",&EvnManager::GetReward)
 		.def("Steps",&EnvManager::Steps)
 		.def("StepsAtOnce",&EnvManager::StepsAtOnce)
 		.def("Resets",&EnvManager::Resets)

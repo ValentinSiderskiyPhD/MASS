@@ -22,7 +22,6 @@ public:
 	np::ndarray GetState(int id);
 	void SetAction(np::ndarray np_array, int id);
 	double GetReward(int id);
-  double GetJumpReward(int id);
 
 	void Steps(int num);
 	void StepsAtOnce();

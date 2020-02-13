@@ -35,7 +35,6 @@ public:
 	Eigen::VectorXd GetState();
 	void SetAction(const Eigen::VectorXd& a);
 	double GetReward();
-	double GetJumpReward();
 
 	Eigen::VectorXd GetDesiredTorques();
 	Eigen::VectorXd GetMuscleTorques();
